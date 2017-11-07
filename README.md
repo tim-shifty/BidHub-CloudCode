@@ -1,36 +1,36 @@
 # BidHub Cloud Code Backend
-Backend code for HubSpot's open-source silent auction app. For an overview of the auction app project, [check out our blog post about it](http://dev.hubspot.com/blog/building-an-auction-app-in-a-weekend)!
+Backend code for HubSpot's open-source silent auction app, forked to be used with Kinvey. For an overview of the original auction app project, [check out the blog post about it](http://dev.hubspot.com/blog/building-an-auction-app-in-a-weekend)!
 
-The [iOS](https://github.com/HubSpot/BidHub-iOS) and [Android](https://github.com/HubSpot/BidHub-Android) auction apps are backed by [Parse](https://parse.com/), a popular and free backend-as-a-service. Parse handles the database, and also allows you to add server-side logic that occurs when an action is taken (such as a client posting a new bid). This repository contains all of that server-side logic, as well as this helpful README that'll get you set up with Parse.
+The [iOS](https://github.com/ncauldwell/BidHub-iOS/tree/kinvey-backend) and Android (coming soon) auction apps are backed by [Kinvey](https://www.kinvey.com/). Kinvey handles the database, and also allows you to add server-side logic that occurs when an action is taken (such as a client posting a new bid). This repository contains all of that server-side logic, as well as this helpful README that'll get you set up with Kinvey.
 
 ## Getting Started
 
-1. [Sign up for Parse](https://www.parse.com/home/index#signup). 
-2. `git clone` this repository and edit *config/global.json* to include your app's name, application ID, and master key (you can find these in Parse by going to Settings > Keys). 
-3. [Install the Parse Command Line Tool](https://parse.com/docs/cloud_code_guide).
-4. From the AuctionAppCloudCode directory, run `parse deploy`.
+1. [Sign up for Kinvey](https://console.kinvey.com/signup).
+2. Create a New App in your Kinvey console.
+3. In your new kinvey app, create 2 new collections: `items` and `bids`.
+4. [Install the Kinvey Business Logic CLI](https://devcenter.kinvey.com/ios/bl-cli-downloads).
+5. `git clone` this repository.
+6. From the BidHub-CloudCode/cloud directory, run `kinvey-bl init` and follow the instructions to authenticate and connect to the kinvey app you created above.
+7. In the same directory, run `kinvey-bl deploy`.
 
 ## Initializing the Database
-The `parse deploy` command pushed *cloud/main.js* to Parse. You can see it in Parse by going to Core > Cloud Code. The first two functions contain all of the logic that runs before and after a NewBid is saved, and are run automatically by Parse. The third, *InitializeForAuction*, is a manual job that will set up your Item and NewBid tables with the correct columns. 
+The `kinvey-bl deploy` command pushed the code from the *business-logic/* folders to Kinvey. You can see it in your Kinvey console by going to Business Logic > Collection Hooks. There are 4 hooks that were uploaded, `onPreSave()` and `onPostSave()` for both the `bids` and `users` collections. The hooks for the `bids` collection contain all of the logic that runs before and after a NewBid is saved and are run automatically by Kinvey. The `users` hooks are used in conjunction with the bidder number that is assigned to users. See more about that in the client app code.
 
-To run the job, go to Core > Jobs and click Schedule a Job. Use the settings shown below:
-![Schedule a Job](http://i.imgur.com/Aho6eQK.png)
+Also uploaded was a single Endpoint, *InitializeForAuction*, which will add 1 test item to your items collection.
 
-Scheduling the job should result in the screen below. Click Run Now to run the job. That's it! 
+To run the Endpoint, go to Business Logic > Custom Endpoints and edit the *InitializeForAuction* endpoint.
+If you'd like to change any of the properties of the Test Item, do so in the code before running it. Specifically, if you hope to bid on this test item you'll want to change the *opentime* and *closetime* values.
+Click the Testing button, then click Send Request.
 
-![Run Now](http://i.imgur.com/zxtMHTe.png)
-
-Now, if you go to Data (on the left), you should see the Item and NewBid tables. Item will be populated with a Test Object, and both will have a number of auction-related columns.
-
-![Item and NewBid](http://i.imgur.com/2qFxj7jm.png)
+Now, if you go to the items collection, you should see the test object that was just inserted.
 
 ## Adding Items
-The easiest way to add an item is directly from Parse. Go to Core > Data > Item and add either a single item via the +Row button or many items via a CSV import.
+Now that all the item columns are set up, you can add more items by clicking + Add Row while viewing the items collection.
 
 ## Data Models
-That's it! You're all set up, and you can go play with the [iOS](https://github.com/HubSpot/BidHub-iOS) and [Android](https://github.com/HubSpot/BidHub-Android) apps now. You can also grab the [Web Panel](https://github.com/HubSpot/BidHub-WebAdmin) to keep an eye on the auction. If you're interested in the data models, read on for a short description.
+That's it! You're all set up, and you can go play with the [iOS](https://github.com/ncauldwell/BidHub-iOS/tree/kinvey-backend) and Android (coming soon) apps now. You can also grab the [Web Panel](https://github.com/ncauldwell/BidHub-WebAdmin/tree/kinvey-backend) to keep an eye on the auction. If you're interested in the data models, read on for a short description.
 
-### Item
+### item
 
 Represents a thing or service for sale. 
 
@@ -45,12 +45,16 @@ Represents a thing or service for sale.
  * `opentime` before this time, bidding is closed
  * `previousWinners` email address(es) of who was winning this item before the latest bid. Used by the server-side logic to send pushes only to people who are no longer winning an item.
  * `price` bids start at or above this price
+ * `priceIncrement` bids must be incremented by at least this amount
  * `qty` how many of this item is available. For example, if 3 are available, the highest 3 bidders win.
+ *`imageurl` URL of the image of this item
+ *`donorurl` URL of the image of the donor, or donor's logo
 
-### NewBid
+### bid
 Represents a single bid on an item. 
 
  * `amt` total dollar amount of bid
- * `email` Bidder's email (unique ID)
- * `item` objectId of item this bid is for
+ * `email` Bidder's email
+ * `itemId` kinvey _id of item this bid is for
  * `name` Bidder's name
+ *`bidderNumber` Bidder's bidder number

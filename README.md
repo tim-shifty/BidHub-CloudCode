@@ -47,8 +47,8 @@ Represents a thing or service for sale.
  * `price` bids start at or above this price
  * `priceIncrement` bids must be incremented by at least this amount
  * `qty` how many of this item is available. For example, if 3 are available, the highest 3 bidders win.
- *`imageurl` URL of the image of this item
- *`donorurl` URL of the image of the donor, or donor's logo
+ * `imageurl` URL of the image of this item
+ * `donorurl` URL of the image of the donor, or donor's logo
 
 ### bid
 Represents a single bid on an item. 
@@ -57,4 +57,4 @@ Represents a single bid on an item.
  * `email` Bidder's email
  * `itemId` kinvey _id of item this bid is for
  * `name` Bidder's name
- *`bidderNumber` Bidder's bidder number
+ * `bidderNumber` Bidder's bidder number

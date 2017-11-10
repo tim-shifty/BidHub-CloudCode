@@ -1,7 +1,7 @@
 # BidHub Cloud Code Backend
 Backend code for HubSpot's open-source silent auction app, forked to be used with Kinvey. For an overview of the original auction app project, [check out the blog post about it](http://dev.hubspot.com/blog/building-an-auction-app-in-a-weekend)!
 
-The [iOS](https://github.com/ncauldwell/BidHub-iOS/tree/kinvey-backend) and Android (coming soon) auction apps are backed by [Kinvey](https://www.kinvey.com/). Kinvey handles the database, and also allows you to add server-side logic that occurs when an action is taken (such as a client posting a new bid). This repository contains all of that server-side logic, as well as this helpful README that'll get you set up with Kinvey.
+The [iOS](https://github.com/ncauldwell/BidHub-iOS/tree/kinvey-backend) and [Android](https://github.com/ncauldwell/BidHub-Android/tree/kinvey-backend) auction apps are backed by [Kinvey](https://www.kinvey.com/). Kinvey handles the database, and also allows you to add server-side logic that occurs when an action is taken (such as a client posting a new bid). This repository contains all of that server-side logic, as well as this helpful README that'll get you set up with Kinvey.
 
 ## Getting Started
 
@@ -28,7 +28,7 @@ Now, if you go to the items collection, you should see the test object that was 
 Now that all the item columns are set up, you can add more items by clicking + Add Row while viewing the items collection.
 
 ## Data Models
-That's it! You're all set up, and you can go play with the [iOS](https://github.com/ncauldwell/BidHub-iOS/tree/kinvey-backend) and Android (coming soon) apps now. You can also grab the [Web Panel](https://github.com/ncauldwell/BidHub-WebAdmin/tree/kinvey-backend) to keep an eye on the auction. If you're interested in the data models, read on for a short description.
+That's it! You're all set up, and you can go play with the [iOS](https://github.com/ncauldwell/BidHub-iOS/tree/kinvey-backend) and [Android](https://github.com/ncauldwell/BidHub-Android/tree/kinvey-backend) apps now. You can also grab the [Web Panel](https://github.com/ncauldwell/BidHub-WebAdmin/tree/kinvey-backend) to keep an eye on the auction. If you're interested in the data models, read on for a short description.
 
 ### item
 

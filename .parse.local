@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "<your-app-name>": {
+      "applicationId": "<your-app-id>"
+    },
+    "_default": {
+      "link": "<your-app-name>"
+    }
+  }
+}

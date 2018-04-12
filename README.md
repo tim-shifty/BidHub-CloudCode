@@ -5,24 +5,27 @@ The [iOS](https://github.com/HubSpot/BidHub-iOS) and [Android](https://github.co
 
 ## Getting Started
 
-1. [Sign up for Parse](https://www.parse.com/home/index#signup). 
-2. `git clone` this repository and edit *config/global.json* to include your app's name, application ID, and master key (you can find these in Parse by going to Settings > Keys). 
-3. [Install the Parse Command Line Tool](https://parse.com/docs/cloud_code_guide).
-4. From the AuctionAppCloudCode directory, run `parse deploy`.
+1. [Sign up for Back4App](https://www.back4app.com/).
+2. `git clone` this repository and edit *.parse.local* to include your app's name and application ID (you can find these in Back4App by going to Dashboard > App Settings > Security & Keys).
+3. [Install the Back4App Command Line Tool](https://www.back4app.com/docs/command-line-tool/parse-server-setup).
+4. Run `b4a configure accountkey` and follow the instructions.
+5. From the BidHub-CloudCode directory, run `b4a deploy`.
 
 ## Initializing the Database
-The `parse deploy` command pushed *cloud/main.js* to Parse. You can see it in Parse by going to Core > Cloud Code. The first two functions contain all of the logic that runs before and after a NewBid is saved, and are run automatically by Parse. The third, *InitializeForAuction*, is a manual job that will set up your Item and NewBid tables with the correct columns. 
+The `b4a deploy` command pushed *cloud/main.js* to Parse. You can see it in Back4App by going to Server Settings > Cloud Code Settings. The first two functions contain all of the logic that runs before and after a Bid is saved, and are run automatically by Parse. The third, *InitializeForAuction*, is a manual function that will set up your Item and Bid tables with the correct columns. 
 
-To run the job, go to Core > Jobs and click Schedule a Job. Use the settings shown below:
-![Schedule a Job](http://i.imgur.com/Aho6eQK.png)
+To run the *InitializeForAuction* function, get your App ID and REST API key from Core > Server Settings > Core Settings and run the following:
 
-Scheduling the job should result in the screen below. Click Run Now to run the job. That's it! 
+curl -X POST \
+ -H "X-Parse-Application-Id: <your App Id>" \
+ -H "X-Parse-REST-API-Key: <your REST API key>" \
+ -H "Content-Type: application/json" \
+ -d "{}" \
+ https://parseapi.back4app.com/functions/InitializeForAuction
 
-![Run Now](http://i.imgur.com/zxtMHTe.png)
+Now, if you go to Data (on the left), you should see the Item and Bid tables. Item will be populated with a Test Object, and both will have a number of auction-related columns.
 
-Now, if you go to Data (on the left), you should see the Item and NewBid tables. Item will be populated with a Test Object, and both will have a number of auction-related columns.
-
-![Item and NewBid](http://i.imgur.com/2qFxj7jm.png)
+![Item and Bid](http://i.imgur.com/2qFxj7jm.png)
 
 ## Adding Items
 The easiest way to add an item is directly from Parse. Go to Core > Data > Item and add either a single item via the +Row button or many items via a CSV import.
@@ -47,7 +50,7 @@ Represents a thing or service for sale.
  * `price` bids start at or above this price
  * `qty` how many of this item is available. For example, if 3 are available, the highest 3 bidders win.
 
-### NewBid
+### Bid
 Represents a single bid on an item. 
 
  * `amt` total dollar amount of bid

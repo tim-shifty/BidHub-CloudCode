@@ -4,7 +4,7 @@ Array.prototype.diff = function(a) {
 };
 
 // This code will be run before saving a new bid.
-Parse.Cloud.beforeSave("NewBid", function(request, response) {
+Parse.Cloud.beforeSave("Bid", function(request, response) {
 
 	currentBid = request.object;
 
@@ -70,8 +70,8 @@ Parse.Cloud.beforeSave("NewBid", function(request, response) {
 			    // Build an object mapping email addresses to their highest bids.
    			    var bidsForEmails = {};
    			    allWinningBids.forEach(function(bid) {
-			   		var curBid = bidsForEmails[bid.get("email")]
-			   		if (curBid) {
+					var curBid = bidsForEmails[bid.get("email")];
+					if (curBid) {
 		   				bidsForEmails[bid.get("email")] = (curBid.get("amt") > bid.get("amt") ? curBid : bid);
 			   		}
 			   		else {
@@ -99,8 +99,8 @@ Parse.Cloud.beforeSave("NewBid", function(request, response) {
    			    }
 
 			  	// Add the new bid and sort by amount, secondarily sorting by time.
-   			    allWinningBids.push(currentBid)
-   			    allWinningBids = allWinningBids.sort(function(a, b){
+				allWinningBids.push(currentBid);
+				allWinningBids = allWinningBids.sort(function(a, b){
     					var keyA = a.get("amt");
     					var keyB = b.get("amt");
 
@@ -161,7 +161,7 @@ Parse.Cloud.beforeSave("NewBid", function(request, response) {
 				    item.set("allBidders", uniqueArray);
 					item.set("currentPrice", currentPrice);
 					item.set("currentWinners", currentWinners);
-					item.set("previousWinners", previousWinners)
+					item.set("previousWinners", previousWinners);
 
 					// Save all these updates back to the Item.
 					item.save(null, {
@@ -180,7 +180,6 @@ Parse.Cloud.beforeSave("NewBid", function(request, response) {
 		    		return;
 		    	}
 
-
 			  },
 			  error: function(error) {
 			    console.error("Error: " + error.code + " " + error.message);
@@ -198,13 +197,13 @@ Parse.Cloud.beforeSave("NewBid", function(request, response) {
 });
 
 // This code is run after the successful save of a new bid.
-Parse.Cloud.afterSave("NewBid", function(request, response) {
+Parse.Cloud.afterSave("Bid", function(request, response) {
 
 	currentBid = request.object;
 
 	// Get the item that's being bid on.
 	itemQuery = new Parse.Query("Item");
-	itemQuery.equalTo("objectId", request.object.get("item"))
+	itemQuery.equalTo("objectId", request.object.get("item"));
 	itemQuery.first({
 		success: function(item) {
 
@@ -244,28 +243,26 @@ Parse.Cloud.afterSave("NewBid", function(request, response) {
 			  }
 			}, {
 			  success: function() {
-			    console.log("Pushed successfully.")
+			    console.log("Pushed successfully.");
 			  },
 			  error: function(error) {
-			    console.error("Push failed: " +error)
+			    console.error("Push failed: " +error);
 			  }
 			});
 
 		}, 
 		error: function(error) {
-		    console.error("Push failed: " +error)
+		    console.error("Push failed: " +error);
 		}
 	});
 
 });
 
 // Sets up all the tables for you.
-Parse.Cloud.job("InitializeForAuction", function(request, status) {
-	Parse.Cloud.useMasterKey();
-
+Parse.Cloud.define("InitializeForAuction", function(request, response) {
 	// Add a test item.
-	var Item = Parse.Object.extend("Item"); 
-	var item = new Item();  
+	var Item = Parse.Object.extend("Item");
+	var item = new Item();
 	item.set("name", "Test Object 7");
 	item.set("description", "This is a test object, and you (probably) won't be asked to donate your bid on this item to charity. Who knows, though.");
 	item.set("donorname", "Generous Donor");
@@ -277,30 +274,34 @@ Parse.Cloud.job("InitializeForAuction", function(request, status) {
 	item.set("numberOfBids", 0);
 	item.set("allBidders", []);
 	item.set("currentWinners", []);
-	item.set("previousWinners", [])
+	item.set("previousWinners", []);
 	item.set("opentime", new Date("Dec 05, 2014, 05:00"));
 	item.set("closetime", new Date("Dec 06, 2015, 05:00"));
 	item.save(null, {
+		useMasterKey: true, // probably not necessary? Delete
 		success: function(item) {
-			var NewBid = Parse.Object.extend("NewBid"); 
-			var bid = new NewBid();  
+			var Bid = Parse.Object.extend("Bid");
+			var bid = new Bid();
 			bid.set("item", "");
 			bid.set("amt", 0);
 			bid.set("email", "");
 			bid.set("name", "");
+			request.log.info("Saving the Bid object");
 			bid.save(null, {
+				useMasterKey: true, // probably not necessary? Delete
 				success: function(bid) {
-					console.log("Initialization complete.");
+					request.log.info("Initialization complete.");
+					response.success("Initialization complete");
 				},
-				error: function(bid) {
-					console.log("Initialization complete.");
+				error: function(bid, error) {
+					request.log.error("Bid failed to save with error: " + error.message);
+					response.error("Bid failed to save with error: " + error.message);
 				}
 			});
 		},
 		error: function(item, error) {
-			console.error("Unable to initialize Item table. Have you set your application name, app ID, and master key in config/global.json?")
+			request.log.error("Item failed to save with error: " + error.message);
+			response.error("Item failed to save with error: " + error.message);
 		}
 	});
-
-
 });
